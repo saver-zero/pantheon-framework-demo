@@ -1,0 +1,384 @@
+@startuml
+/'
+@id: system-component-overview
+@title: Travel Itinerary Generator - System Component Overview
+@description: High-level component diagram showing the frontend architecture with service abstraction layer and pluggable backend implementations
+@keywords: [diagram, component, architecture, frontend, service-abstraction, react, typescript]
+@relevance: Use this diagram to understand the overall system architecture, component relationships, and the abstraction pattern enabling POC-to-production migration without frontend changes
+'/
+
+!include ../_includes/plantuml-style.puml
+
+title Travel Itinerary Generator - Component Overview
+
+package "Configuration" {
+  [AppConfig] as Config
+  [getServiceConfig] as GetConfig
+}
+
+package "React Application (Port 5273)" {
+  component "App Component" as App {
+    [handleGenerate (orchestration)]
+    [error state]
+    [loading state]
+    [currentItinerary state]
+  }
+  component "ItineraryForm Component" as Form {
+    [validateDestination]
+    [validatePartyInfo]
+    [validateMonth]
+    [validateDays]
+    [handleSubmit]
+  }
+  package "Display Components" {
+    component "ActivityItem Component" as ActivityItem {
+      [attraction name (h4)]
+      [description]
+      [what_to_do list]
+      [where_to_eat]
+    }
+    component "DayView Component" as DayView {
+      [day number (h2)]
+      [time period labels (h3)]
+      [conditional period rendering]
+    }
+    component "ItineraryDisplay Component" as Display {
+      [destination (h1)]
+      [trip metadata]
+      [day orchestration]
+    }
+  }
+  package "Error Handling Components" {
+    component "ErrorDisplay Component" as ErrorDisplay {
+      [errorMessage]
+      [errorType (error/warning/info)]
+      [onRetry callback]
+      [role='alert']
+    }
+    component "ErrorBoundary Component" as ErrorBoundary {
+      [getDerivedStateFromError]
+      [componentDidCatch]
+      [fallback UI]
+      [window.location.reload]
+    }
+  }
+  component "HistoryView Component" as History {
+    [getHistory on mount]
+    [selected itinerary state]
+    [delete functionality]
+    [list-detail pattern]
+  }
+}
+
+package "Service Layer" {
+  interface "IItineraryService" as IService
+  [createItineraryService] as Factory
+  [ItineraryServiceProvider] as Provider
+  [useItineraryService] as Hook
+}
+
+package "Backend Implementations" {
+  component "CLIApiClient" as CLI {
+    [buildPrompt]
+    [executeCLI]
+    [parseResponse]
+    [generateItinerary]
+  }
+  [HTTPApiClient] as HTTP
+}
+
+package "Backend Server (Port 3001)" {
+  component "Express Server" as ExpressServer {
+    [POST /api/itinerary]
+    [Error middleware]
+    [CORS configuration]
+  }
+  component "Claude CLI Service" as ClaudeService {
+    [spawn('claude')]
+    [stdin.end()]
+    [stdout collector]
+    [markdown parser]
+  }
+}
+
+package "Supporting Services" {
+  component "LocalStorageService" as Storage {
+    [saveItinerary]
+    [getHistory]
+    [clearHistory]
+  }
+  [ValidationService] as Validator
+}
+
+package "Error Types" {
+  [CLIError]
+  [ValidationError]
+  [ServiceError]
+  [StorageError]
+}
+
+package "External Systems" {
+  [Browser LocalStorage] as BrowserStorage
+  [Claude CLI] as ClaudeCLI
+  [REST API Backend] as RestAPI
+  [VITE_API_MODE] as EnvVar
+}
+
+' Component relationships
+GetConfig --> Config : returns
+Config --> Factory : configures
+ErrorBoundary --> App : wraps
+App --> Factory : creates service
+App --> Provider : wraps with service
+App --> Form : renders
+App --> Display : renders
+App --> History : renders
+App --> ErrorDisplay : renders on error
+App ..> Form : onGenerate callback
+App ..> ValidationError : catches
+App ..> ServiceError : catches
+App ..> StorageError : catches (graceful degradation)
+Provider ..> IService : provides
+Form --> Hook : uses
+Form --> ErrorDisplay : renders on service error
+History --> Hook : uses
+History --> ErrorDisplay : renders on storage error
+Hook ..> IService : retrieves
+Form ..> IService : calls generateItinerary
+History ..> IService : calls getHistory
+Form ..> Display : passes itinerary to parent
+History --> Display : renders selected itinerary
+History --> BrowserStorage : direct access for delete
+Display --> DayView : renders
+DayView --> ActivityItem : renders
+ErrorBoundary --> ErrorDisplay : uses for fallback UI
+
+Factory --> GetConfig : reads configuration
+Factory --> CLI : instantiates (POC)
+Factory --> HTTP : instantiates (Production)
+Factory --> Storage : creates and injects
+Factory --> Validator : creates and injects
+
+CLI ..|> IService : implements
+HTTP ..|> IService : implements
+
+CLI --> Storage : uses
+CLI --> Validator : uses
+HTTP --> Storage : uses
+HTTP --> Validator : uses
+
+EnvVar --> GetConfig : reads import.meta.env
+executeCLI --> ClaudeCLI : child_process.exec\n60s timeout
+parseResponse ..> ValidationError : may throw
+Validator ..> ValidationError : throws on invalid
+executeCLI ..> CLIError : throws on failure
+CLI ..> ServiceError : wraps all errors
+Storage ..> StorageError : throws on quota
+
+HTTP --> ExpressServer : HTTP POST\nport 3001
+ExpressServer --> ClaudeService : delegates generation
+ClaudeService --> ClaudeCLI : spawn process
+ClaudeService ..> ExpressServer : markdown string
+ExpressServer ..> HTTP : markdown response
+HTTP --> RestAPI : HTTP requests
+Storage --> BrowserStorage : reads/writes
+
+note right of IService
+  Core abstraction enabling
+  seamless POC-to-production
+  migration without changing
+  component code
+end note
+
+note right of Config
+  Environment variable flow:
+  VITE_API_MODE flows into
+  getServiceConfig, then to
+  createItineraryService factory.
+  Defaults to 'CLI' if not set.
+end note
+
+note right of Factory
+  createItineraryService:
+  Creates shared LocalStorageService
+  and ValidationService instances,
+  injects into selected client
+  implementation based on
+  AppConfig.apiMode.
+end note
+
+note right of Provider
+  React Context dependency injection:
+  ItineraryServiceProvider wraps App
+  and provides service via Context.
+  useItineraryService hook retrieves
+  service in components.
+end note
+
+note bottom of CLI
+  POC Implementation:
+  Uses child_process.exec with
+  60-second timeout. Logs all
+  operations with [CLIApiClient]
+  prefix for debugging.
+end note
+
+note bottom of HTTP
+  Production Implementation:
+  Connects to Backend Server (port 3001).
+  Sends HTTP POST with trip parameters.
+  Receives markdown string response.
+  Accepts same dependencies as
+  CLIApiClient for consistency.
+end note
+
+note right of ExpressServer
+  Backend Server (Port 3001):
+  Express.js server handling API requests.
+  Delegates CLI execution to ClaudeService.
+  Returns markdown string responses.
+  CORS configured for frontend (port 5273).
+end note
+
+note right of ClaudeService
+  Spawn-based CLI execution:
+  Uses child_process.spawn('claude').
+  Calls stdin.end() immediately after spawn.
+  Collects stdout chunks via data events.
+  Returns concatenated markdown string.
+end note
+
+note right of App
+  Orchestration State Machine:
+  Four states: idle, loading, success, error
+
+  State transitions:
+  1. idle -> loading (generation starts)
+  2. loading -> success (validated data)
+  3. loading -> error (service/validation failure)
+  4. success/error -> loading (retry)
+  5. loading -> success-with-warning (storage failure)
+
+  Error handling strategy:
+  - ValidationError: malformed API response
+  - ServiceError: backend communication failure
+  - StorageError: graceful degradation
+    (shows itinerary + warning)
+
+  State guards:
+  - Clear error on generation start
+  - Maintain previous itinerary on error
+  - Cleanup loading state in finally block
+
+  Loading state coordination:
+  - App manages orchestration loading
+  - Form manages button loading
+  - Synchronized via async flow
+end note
+
+note bottom of Form
+  Client-side validation:
+  Pure validation functions check
+  destination (min 2 chars),
+  partyInfo (min 2 chars),
+  month (required),
+  days (1-30 range).
+  Validates on blur and submit.
+  Uses useItineraryService hook
+  for service access via context.
+end note
+
+note right of Display
+  Component Composition Pattern:
+  Pure presentational components
+  with no service dependencies.
+
+  ItineraryDisplay: Orchestrates
+  metadata rendering (destination,
+  party_info, month, days) and
+  maps over itinerary array.
+
+  DayView: Renders day number and
+  conditionally displays time periods
+  (morning, afternoon, evening,
+  night, late_night) when activities
+  exist.
+
+  ActivityItem: Atomic component
+  rendering attraction name,
+  description, what_to_do list,
+  and where_to_eat details.
+
+  All components use semantic HTML
+  (h1, h2, h3, h4, ul, li) for
+  proper document structure and
+  accessibility.
+end note
+
+note right of CLIError
+  Thrown by executeCLI for:
+  - Command not found
+  - Non-zero exit code
+  - Timeout (ETIMEDOUT)
+end note
+
+note right of ServiceError
+  Wrapper for all errors with:
+  - User-friendly message
+  - originalError (preserves stack)
+  - context (debugging metadata)
+  - timestamp
+end note
+
+note right of Storage
+  Automatic error recovery:
+  - QuotaExceededError: removes
+    3 oldest items and retries
+  - Corrupted data: clears and
+    returns empty array
+end note
+
+note right of ErrorDisplay
+  Centralized error display:
+  - Consistent error presentation
+  - Accessibility (role='alert', aria-live='polite')
+  - Color-coded by type:
+    * error: red (#c62828)
+    * warning: orange (#f57c00)
+    * info: blue (#1976d2)
+  - Optional retry button when
+    onRetry callback provided
+  - Used by App, ItineraryForm,
+    and HistoryView for service errors
+end note
+
+note right of History
+  History Management Component:
+  - List-detail pattern for saved itineraries
+  - Calls getHistory() on mount via
+    useItineraryService hook
+  - Extracts metadata (destination, days, month)
+    from markdown strings for list display
+  - Manages selected itinerary state locally
+  - Reuses ItineraryDisplay for detail view
+  - Delete functionality with confirmation
+  - Direct localStorage access for delete
+    (workaround for missing deleteFromHistory)
+  - Empty state: prompts user to generate
+  - Error handling via ErrorDisplay component
+  - Semantic HTML (ul/li) for accessibility
+end note
+
+note right of ErrorBoundary
+  React Error Boundary (class component):
+  - Catches rendering errors in children
+  - Prevents app crash, displays fallback UI
+  - Logs errors to console for debugging
+  - Fallback uses ErrorDisplay component
+  - Recovery via window.location.reload()
+  - Wrapped around App in main.tsx
+  - Does NOT catch event handler errors
+    or async errors (handled separately)
+end note
+
+@enduml

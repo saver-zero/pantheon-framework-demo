@@ -1,0 +1,73 @@
+.itinerary-display {
+  max-width: var(--max-width-lg);
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+}
+
+.itinerary-header {
+  text-align: center;
+  margin-bottom: var(--spacing-3xl);
+  padding-bottom: var(--spacing-xl);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.itinerary-header h1 {
+  font-size: var(--font-size-3xl);
+  color: var(--secondary-color);
+  margin-bottom: var(--spacing-md);
+}
+
+.itinerary-header .party-info {
+  font-size: var(--font-size-lg);
+  color: var(--text-light);
+  margin-bottom: var(--spacing-sm);
+}
+
+.itinerary-header .trip-details {
+  font-size: var(--font-size-base);
+  color: var(--text-lighter);
+  font-weight: 500;
+}
+
+.days {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .itinerary-display {
+    padding: var(--spacing-lg);
+  }
+
+  .itinerary-header {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .itinerary-header h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .itinerary-header .party-info {
+    font-size: var(--font-size-base);
+  }
+
+  .days {
+    gap: var(--spacing-xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .itinerary-display {
+    padding: var(--spacing-md);
+  }
+
+  .itinerary-header h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  .itinerary-header .party-info {
+    font-size: var(--font-size-sm);
+  }
+}

@@ -1,0 +1,110 @@
+.history-view {
+  max-width: var(--max-width-xl);
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+}
+
+.history-view h1 {
+  text-align: center;
+  color: var(--secondary-color);
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-md);
+}
+
+.history-count {
+  text-align: center;
+  color: var(--text-light);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.empty-message {
+  text-align: center;
+  color: var(--text-light);
+  font-size: var(--font-size-lg);
+  padding: var(--spacing-3xl) var(--spacing-lg);
+  background: var(--background);
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--border-color);
+  margin-top: var(--spacing-2xl);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xl);
+}
+
+.history-item {
+  background: var(--background);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.history-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.history-metadata {
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.history-metadata h3 {
+  color: var(--primary-color);
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-xs);
+}
+
+.metadata-details {
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .history-view {
+    padding: var(--spacing-lg);
+  }
+
+  .history-view h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .history-count {
+    font-size: var(--font-size-sm);
+  }
+
+  .history-list {
+    gap: var(--spacing-2xl);
+  }
+
+  .history-item {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .history-view {
+    padding: var(--spacing-md);
+  }
+
+  .history-view h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  .empty-message {
+    padding: var(--spacing-xl) var(--spacing-md);
+    font-size: var(--font-size-base);
+  }
+
+  .history-item {
+    padding: var(--spacing-md);
+  }
+}

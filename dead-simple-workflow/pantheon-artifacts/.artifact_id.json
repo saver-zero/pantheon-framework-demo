@@ -1,0 +1,12 @@
+{
+  "pantheon-team-builder": {
+    "create-team-blueprint": 1,
+    "create-team-readme": 1,
+    "create-team-profile": 1,
+    "create-agent": 3
+  },
+  "mvp-builder": {
+    "create-project-context": 1,
+    "create-implementation-plan": 3
+  }
+}

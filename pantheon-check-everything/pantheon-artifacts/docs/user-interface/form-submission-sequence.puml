@@ -1,0 +1,259 @@
+@startuml
+/'
+@id: form-submission-sequence
+@title: Trip Input Form Submission Sequence
+@description: Sequence diagram showing the complete user interaction flow from form submission through validation, service call, and result handling including error paths
+@keywords: [diagram, sequence, form, validation, user-interaction, async-flow, error-handling]
+@relevance: Use this diagram to understand the form submission flow, validation timing, service integration, loading state management, and error handling paths in the ItineraryForm component
+'/
+
+!include ../_includes/plantuml-style.puml
+
+title Trip Input Form Submission Sequence
+
+actor User
+participant "ItineraryForm" as Form
+participant "ValidationFunctions" as Validation
+participant "ErrorDisplay" as ErrorDisplay
+participant "IItineraryService\n(via useItineraryService)" as Service
+participant "HTTPApiClient\n(implementation)" as CLI
+participant "LocalStorageService" as Storage
+participant "App Component" as App
+
+== Form Submission ==
+
+User -> Form : Submit form
+activate Form
+
+Form -> Form : handleSubmit(e)
+Form -> Form : e.preventDefault()
+Form -> Form : setError(null)
+
+note right of Form
+  Clear previous service errors
+  for clean retry experience
+end note
+
+== Client-Side Validation ==
+
+Form -> Validation : validateDestination(destination)
+activate Validation
+Validation --> Form : error | null
+deactivate Validation
+
+Form -> Validation : validatePartyInfo(partyInfo)
+activate Validation
+Validation --> Form : error | null
+deactivate Validation
+
+Form -> Validation : validateMonth(month)
+activate Validation
+Validation --> Form : error | null
+deactivate Validation
+
+Form -> Validation : validateDays(days)
+activate Validation
+Validation --> Form : error | null
+deactivate Validation
+
+Form -> Form : Aggregate errors
+
+alt Validation Fails
+
+  Form -> Form : setValidationErrors(errors)
+  Form --> User : Display field errors
+  deactivate Form
+
+  note right of Form
+    Validation errors displayed
+    below respective input fields.
+    Form remains enabled for
+    user corrections.
+  end note
+
+else Validation Succeeds
+
+  Form -> Form : setValidationErrors({})
+  Form -> Form : setIsLoading(true)
+
+  note right of Form
+    Submit button disabled,
+    shows "Generating..." text
+  end note
+
+  == Service Call ==
+
+  Form -> Service : generateItinerary(\n  destination,\n  partyInfo,\n  month,\n  parseInt(days)\n)
+  activate Service
+
+  Service -> CLI : generateItinerary(...)
+  activate CLI
+
+  note right of CLI
+    HTTP POST to Backend Server
+    (port 3001) with trip parameters.
+    Backend handles spawn-based
+    CLI execution.
+  end note
+
+  CLI -> CLI : HTTP POST request
+  CLI -> CLI : Receive markdown response
+
+  alt HTTP Request Success
+
+    note right of CLI
+      Backend server returns
+      markdown string directly.
+      No JSON parsing needed.
+    end note
+
+    CLI -> Storage : saveItinerary(markdown)
+    activate Storage
+
+    note right of Storage
+      HTTPApiClient automatically
+      saves to history during
+      generation. This is the
+      single save operation.
+    end note
+
+    Storage --> CLI : void
+    deactivate Storage
+
+    CLI --> Service : markdown string
+    deactivate CLI
+    Service --> Form : markdown string
+    deactivate Service
+
+    == Success Path ==
+
+    Form -> App : onGenerate(markdownString)
+    activate App
+
+    note right of App
+      State transition:
+      idle/success/error -> loading
+      setIsLoading(true)
+      setError(null)
+
+      Receives markdown string
+      instead of Itinerary object
+    end note
+
+    App -> App : setIsLoading(true)
+    App -> App : setError(null) [State Guard]
+
+    note right of App
+      Markdown is already saved to
+      history by HTTPApiClient during
+      generation. App only manages
+      state and UI updates.
+    end note
+
+    App -> App : setCurrentItinerary(markdownString)
+
+      note right of App
+        State transition:
+        loading -> success
+        Markdown displayed via
+        ReactMarkdown component,
+        no error shown
+      end note
+
+      App --> Form : Promise resolved
+      deactivate App
+
+      Form -> Form : finally: setIsLoading(false)
+      Form --> User : Display success\n(form re-enabled)
+      deactivate Form
+
+      note right of App
+        App displays markdown
+        content using ReactMarkdown.
+        Loading indicator hidden.
+        Form remains visible
+        for generating more.
+      end note
+
+    end
+
+  else HTTP Request Error (Network or Server Error)
+
+    CLI --> Service : throws Error
+    deactivate CLI
+
+    note right of CLI
+      HTTP request failure:
+      Network error, server timeout,
+      or backend server error (500)
+    end note
+
+    Service --> Form : throws Error
+    deactivate Service
+
+    == Error Path ==
+
+    Form -> Form : catch(err)
+    Form -> Form : setError(\n  "Failed to generate itinerary:"\n  + err.message\n)
+
+    Form -> ErrorDisplay : <ErrorDisplay\n  errorMessage={error}\n  errorType='error'\n/>
+    activate ErrorDisplay
+    ErrorDisplay --> User : Display error with\nrole='alert'
+    deactivate ErrorDisplay
+
+    Form -> App : onGenerate(itinerary) [error propagates]
+    activate App
+
+    App -> App : catch(Error)
+    App -> App : setError(userFriendlyMessage)
+    App -> App : setErrorType('error')
+
+    note right of App
+      State transition:
+      loading -> error
+      Previous markdown content maintained
+      (State Guard)
+      Error message displayed
+    end note
+
+    App -> App : finally: setIsLoading(false)
+    App --> Form : Promise rejected
+    deactivate App
+
+    Form -> Form : finally: setIsLoading(false)
+    Form --> User : Form re-enabled for retry
+    deactivate Form
+
+    note right of ErrorDisplay
+      ErrorDisplay component provides:
+      - role='alert' for accessibility
+      - aria-live='polite' for screen readers
+      - Color-coded styling (red for errors)
+      - Consistent error presentation
+      User can retry by resubmitting form.
+      Previous markdown content still visible if exists.
+    end note
+
+  end
+
+end
+
+== OnBlur Validation (Parallel Flow) ==
+
+note over User, Form
+  Independent of submission flow:
+  Each field validates on blur
+  for immediate feedback
+end note
+
+User -> Form : blur destination field
+activate Form
+Form -> Validation : validateDestination(destination)
+activate Validation
+Validation --> Form : error | null
+deactivate Validation
+Form -> Form : setFieldError('destination', error)
+Form --> User : Display field error if any
+deactivate Form
+
+@enduml

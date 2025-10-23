@@ -1,0 +1,168 @@
+@startuml
+/'
+@id: system-components-diagram
+@title: Travel Itinerary Generator System Components
+@description: High-level component diagram showing the structure and relationships of the Travel Itinerary Generator application.
+@keywords: [diagram, component, system-architecture, react, api-abstraction, frontend]
+@relevance: Use this diagram to understand the overall system architecture, component relationships, and data flows between UI components, API clients, and services.
+'/
+
+!include ../_includes/plantuml-style.puml
+
+title Travel Itinerary Generator - System Components
+
+package "React Application" {
+  component "App Container" as App {
+    note right of App
+      Manages global state,
+      routing, and API client
+      initialization
+    end note
+  }
+
+  component "ItineraryForm" as Form {
+    note right of Form
+      Collects user input:
+      destination, party info,
+      month, trip duration
+    end note
+  }
+
+  component "ItineraryDisplay" as Display {
+    note right of Display
+      Renders day-by-day
+      itinerary with time
+      periods and activities
+    end note
+  }
+
+  component "HistoryList" as History {
+    note right of History
+      Shows previously
+      generated itineraries
+      from local storage
+    end note
+  }
+}
+
+package "API Abstraction Layer" {
+  interface "IItineraryService" as IService
+    note right of IService
+      Common interface for
+      backend implementations
+    end note
+
+  component "API Client Factory" as Factory {
+    note right of Factory
+      Selects and instantiates
+      appropriate client based
+      on configuration
+    end note
+  }
+
+  component "CLIApiClient" as CLIClient {
+    note right of CLIClient
+      POC implementation
+      using Claude CLI
+      for AI generation
+    end note
+  }
+
+  component "HTTPApiClient" as HTTPClient {
+    note right of HTTPClient
+      Future production
+      implementation using
+      REST API endpoints
+    end note
+  }
+
+  component "PromptBuilder" as Prompt {
+    note right of Prompt
+      Constructs structured
+      AI prompts with JSON
+      schema for consistent
+      responses
+    end note
+  }
+}
+
+package "Shared Services" {
+  component "LocalStorage Service" as Storage {
+    note right of Storage
+      Manages itinerary
+      history persistence
+      (max 10 items)
+    end note
+  }
+
+  component "Validation Service" as Validator {
+    note right of Validator
+      Runtime validation
+      using Zod schemas
+      for API responses
+    end note
+  }
+
+  component "Error Handler Service" as ErrorHandler {
+    note right of ErrorHandler
+      Centralizes error
+      handling and user-facing
+      error messages
+    end note
+  }
+}
+
+database "Browser LocalStorage" as BrowserStorage {
+  note right of BrowserStorage
+    Persists itinerary
+    history locally
+  end note
+}
+
+cloud "Claude CLI" as Claude {
+  note right of Claude
+    AI-powered itinerary
+    generation (POC only)
+  end note
+}
+
+cloud "Future HTTP API" as API {
+  note right of API
+    Production backend
+    (not yet implemented)
+  end note
+}
+
+' Component relationships
+App --> Form : renders
+App --> Display : renders
+App --> History : renders
+App --> Factory : initializes
+
+Form --> IService : calls generateItinerary()
+Display ..> App : receives itinerary\nfrom global context
+History --> Storage : loads history
+History --> Display : shows selected\nitinerary
+
+Factory --> CLIClient : creates (POC mode)
+Factory --> HTTPClient : creates (production mode)
+CLIClient ..|> IService : implements
+HTTPClient ..|> IService : implements
+
+CLIClient --> Prompt : uses
+CLIClient --> Storage : saves to history
+CLIClient --> Validator : validates response
+CLIClient --> Claude : executes commands
+
+HTTPClient --> Storage : saves to history
+HTTPClient --> Validator : validates response
+HTTPClient --> API : makes requests
+
+Form --> Validator : validates inputs
+Form --> ErrorHandler : handles errors
+CLIClient --> ErrorHandler : handles errors
+HTTPClient --> ErrorHandler : handles errors
+
+Storage --> BrowserStorage : reads/writes
+
+@enduml

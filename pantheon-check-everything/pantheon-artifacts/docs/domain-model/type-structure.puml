@@ -1,0 +1,115 @@
+@startuml type-structure
+!theme plain
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 80
+
+title Itinerary Domain Model - Type Structure
+
+' Activity interface - represents a single attraction
+class Activity <<interface>> {
+  + attraction: string
+  + attraction_description: string
+  + what_to_do: string[]
+  + where_to_eat: string
+}
+
+note right of Activity
+  All fields are required.
+  Represents a single attraction
+  with complete details for a
+  time period.
+end note
+
+' TimePeriod type - union of Activity array or null
+class "TimePeriod" as TimePeriod <<type>> {
+  Activity[] | null
+}
+
+note right of TimePeriod
+  Union type supporting both:
+  - Activity[] (populated period)
+  - null (no activities)
+
+  Enables flexible time period
+  handling per PRD schema.
+end note
+
+' Day interface - represents one day in itinerary
+class Day <<interface>> {
+  + day: number
+  + morning: TimePeriod
+  + afternoon: TimePeriod
+  + evening: TimePeriod
+  + night?: TimePeriod
+  + late_night?: TimePeriod
+}
+
+note right of Day
+  Required fields:
+  - day, morning, afternoon, evening
+
+  Optional fields:
+  - night, late_night
+
+  Time periods can be null even
+  when required (field present,
+  value null).
+end note
+
+' Itinerary interface - top-level response
+class Itinerary <<interface>> {
+  + destination: string
+  + party_info: string
+  + month: string
+  + days: number
+  + itinerary: Day[]
+}
+
+note right of Itinerary
+  All fields are required.
+  Represents the complete AI
+  response with trip details
+  and daily itinerary.
+
+  Matches PRD root schema.
+end note
+
+' Relationships with cardinality
+Itinerary "1" *-- "1..*" Day : contains
+Day "1" *-- "3..5" TimePeriod : has
+TimePeriod "1" o-- "0..*" Activity : contains
+
+' Relationship cardinality explained in legend below
+
+' Legend explaining type safety
+legend bottom
+  <b>Type Structure Overview</b>
+
+  This diagram shows the hierarchy and relationships of the
+  itinerary domain model types defined in src/types/itinerary.ts.
+
+  <b>Snake_case Field Naming:</b>
+  All field names use snake_case to match PRD JSON schema exactly
+  (party_info, attraction_description, what_to_do, where_to_eat).
+
+  <b>Cardinality:</b>
+  - <b>1..* (one to many):</b> Itinerary has 1+ Days
+  - <b>3..5 (three to five):</b> Day has 3-5 TimePeriods
+  - <b>0..* (zero to many):</b> TimePeriod has 0+ Activities or null
+
+  <b>Required vs Optional:</b>
+  - <b>Required:</b> Field must be present (may be null)
+  - <b>Optional (?):</b> Field may be omitted entirely
+
+  <b>Null Handling:</b>
+  TimePeriod can be null (no activities planned) or Activity[]
+  (populated). Components must check for null before accessing.
+
+  <b>Type Safety:</b>
+  TypeScript enforces compile-time type checking for all fields,
+  preventing access to non-existent properties and ensuring
+  correct types are used throughout the application.
+end legend
+
+@enduml

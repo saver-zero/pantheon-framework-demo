@@ -1,0 +1,223 @@
+@startuml
+/'
+@id: design-token-architecture
+@title: Design Token System Architecture
+@description: Component diagram illustrating the design token system architecture showing how CSS custom properties defined in index.css are consumed by component-specific styles and how theming (light/dark mode) works through media queries
+@keywords: [diagram, component, design-tokens, css-variables, theming, dark-mode, styling]
+@relevance: Use this diagram to understand how design tokens are defined, themed across light and dark modes, and consumed by components for consistent styling
+'/
+
+!include ../_includes/plantuml-style.puml
+
+title Design Token System Architecture
+
+package "CSS Design Token System" {
+  component "index.css" as IndexCSS {
+    component ":root Selector" as Root {
+      [--color-primary]
+      [--color-error]
+      [--color-background]
+      [--color-text]
+      [--spacing-md]
+      [--spacing-lg]
+      [--font-size-xl]
+      [--shadow-md]
+      [--radius-md]
+      [--transition-normal]
+    }
+
+    component "@media (prefers-color-scheme: light)" as LightMode {
+      [--color-background: #ffffff]
+      [--color-text: #212529]
+      [--color-primary: #007bff]
+      [color token overrides]
+    }
+
+    component "Component CSS Classes" as ComponentClasses {
+      [.nav-button]
+      [.history-item]
+      [.btn-primary]
+      [.card]
+      [.container]
+    }
+  }
+}
+
+package "React Components" {
+  component "App.tsx" as App {
+    [className='nav-button']
+    [className='nav-button--active']
+    [className='container']
+  }
+
+  component "HistoryView.tsx" as History {
+    [className='history-list']
+    [className='history-item']
+    [className='btn-danger']
+  }
+
+  component "ItineraryForm.tsx" as Form {
+    [className='itinerary-form']
+    [className='form-input']
+    [className='btn-primary']
+  }
+
+  component "ItineraryDisplay.tsx" as Display {
+    [className='itinerary-display']
+  }
+}
+
+package "Browser Runtime" {
+  component "Browser Rendering Engine" as Browser {
+    [CSS Variable Resolution]
+    [Media Query Evaluation]
+    [Computed Style Calculation]
+  }
+
+  component "DOM Elements" as DOM {
+    [<button class='nav-button'>]
+    [<div class='history-item'>]
+    [<input class='form-input'>]
+  }
+}
+
+package "User Environment" {
+  [OS/Browser Theme Setting] as Theme
+  [prefers-color-scheme: dark] as DarkTheme
+  [prefers-color-scheme: light] as LightTheme
+}
+
+' Token Definition Flow
+Root --> ComponentClasses : tokens available via\nCSS inheritance
+LightMode --> Root : overrides color tokens\nwhen media query matches
+
+' Component Usage Flow
+App --> DOM : renders JSX with\nclassName attributes
+History --> DOM : renders JSX with\nclassName attributes
+Form --> DOM : renders JSX with\nclassName attributes
+Display --> DOM : renders JSX with\nclassName attributes
+
+' CSS Application Flow
+ComponentClasses --> DOM : CSS classes applied\nto DOM elements
+DOM --> Browser : browser evaluates\nCSS rules
+
+' Token Resolution Flow
+Browser --> Root : resolves var(--token-name)\nto token values
+Browser --> LightMode : applies light mode\ntoken overrides if needed
+
+' Theme Detection Flow
+Theme --> DarkTheme : user selects\ndark theme
+Theme --> LightTheme : user selects\nlight theme
+DarkTheme --> Browser : prefers-color-scheme: dark\nmedia query inactive
+LightTheme --> Browser : prefers-color-scheme: light\nmedia query active
+Browser --> LightMode : activates light mode\ntoken overrides
+
+note right of Root
+  Default Theme (Dark Mode):
+  Design tokens defined in :root
+  provide default values for dark theme.
+
+  Token categories:
+  - Colors: primary, error, background, text
+  - Spacing: xs, sm, md, lg, xl (8px scale)
+  - Typography: font sizes, weights, line heights
+  - Effects: shadows, border radius, transitions
+
+  All tokens use CSS custom properties
+  for runtime theming support.
+end note
+
+note right of LightMode
+  Light Mode Theme Override:
+  @media (prefers-color-scheme: light)
+  media query redefines color tokens
+  for light theme.
+
+  Only color tokens are overridden.
+  Spacing, typography, and effects
+  remain consistent across themes.
+
+  Media query evaluated by browser
+  based on OS/browser theme setting.
+end note
+
+note right of ComponentClasses
+  Component CSS Classes:
+  Define component-specific styles
+  using design tokens via var() function.
+
+  Example:
+  .nav-button {
+    background: var(--color-primary);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    transition: var(--transition-normal);
+  }
+
+  No hardcoded values allowed.
+  All values reference design tokens.
+end note
+
+note right of App
+  React Component Usage:
+  Components use className attributes
+  to apply CSS classes.
+
+  NO inline styles allowed:
+  - No style={{ color: '#007bff' }}
+  - No JavaScript style objects
+
+  Only className attributes:
+  - className='nav-button'
+  - className='nav-button--active'
+
+  BEM naming convention used
+  for class structure.
+end note
+
+note bottom of Browser
+  Browser Rendering Process:
+  1. Evaluate prefers-color-scheme media query
+  2. Apply matching CSS rules (:root + light mode if applicable)
+  3. Resolve CSS variables (var(--token-name)) to computed values
+  4. Calculate final computed styles for each element
+  5. Render with theme-appropriate colors and styles
+
+  CSS variables enable runtime theming
+  without JavaScript intervention.
+end note
+
+note bottom of DOM
+  Rendered Output:
+  Browser applies computed styles to
+  DOM elements based on className.
+
+  Example rendered element:
+  <button class="nav-button nav-button--active">
+    Computed styles:
+    - background: #007bff (light) or #0056b3 (dark)
+    - padding: 16px (from --spacing-md)
+    - border-radius: 8px (from --radius-md)
+
+  Theme changes trigger automatic
+  re-computation without page reload.
+end note
+
+note left of Theme
+  User Theme Preference:
+  OS or browser theme setting determines
+  prefers-color-scheme media query value.
+
+  Dark theme (default):
+  - Media query inactive
+  - :root tokens used directly
+
+  Light theme:
+  - Media query active
+  - Light mode overrides applied
+
+  Automatic theme detection ensures
+  application respects user preference.
+end note
+
+@enduml

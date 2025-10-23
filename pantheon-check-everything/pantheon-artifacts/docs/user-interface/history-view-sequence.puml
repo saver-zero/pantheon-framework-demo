@@ -1,0 +1,297 @@
+@startuml
+/'
+@id: history-view-sequence
+@title: History View User Interaction Sequence
+@description: Sequence diagram showing the complete user interaction flow for history view including retrieval, selection, detail view rendering, and delete operations
+@keywords: [diagram, sequence, history, list-detail, delete, user-interaction, local-storage]
+@relevance: Use this diagram to understand the HistoryView component interaction flow, including history retrieval on mount, itinerary selection, detail view navigation, and delete operations with confirmation
+'/
+
+!include ../_includes/plantuml-style.puml
+
+title History View User Interaction Sequence
+
+actor User
+participant "HistoryView" as History
+participant "IItineraryService\n(via useItineraryService)" as Service
+participant "LocalStorageService\n(implementation)" as Storage
+participant "ItineraryDisplay" as Display
+participant "ErrorDisplay" as Error
+
+== Component Mount and History Retrieval ==
+
+User -> History : Navigate to History View
+activate History
+
+History -> History : useEffect([])
+
+note right of History
+  Component mount triggers
+  history retrieval via
+  useEffect with empty
+  dependency array
+end note
+
+History -> Service : getHistory()
+activate Service
+
+Service -> Storage : getHistory()
+activate Storage
+
+Storage -> Storage : localStorage.getItem(\n  'itinerary-history'\n)
+
+note right of Storage
+  Read markdown string array
+  from localStorage.
+  Parse JSON and validate
+  each item is a string.
+  Enforce 10-item limit.
+end note
+
+alt History Exists
+
+  Storage --> Service : string[] (markdown array)
+  deactivate Storage
+  Service --> History : string[] (markdown array)
+  deactivate Service
+
+  History -> History : setHistory(markdownArray)
+
+  note right of History
+    Most-recent-first ordering:
+    Index 0 is the latest generated
+    itinerary, index 9 is oldest.
+  end note
+
+  History -> History : Extract metadata for each item
+
+  loop For each markdown string
+
+    History -> History : extractItineraryMetadata(markdown)
+
+    note right of History
+      Parse markdown with regex:
+      - Destination from H1 heading
+      - Days from heading pattern
+      - Month from content text
+      - Timestamp from comment
+    end note
+
+  end
+
+  History --> User : Display list of summaries
+
+  note right of User
+    List view shows:
+    - Position (Most recent, number2, etc.)
+    - Destination name
+    - Days (e.g., "5 days")
+    - Month if available
+    Each item is clickable.
+  end note
+
+else No History Exists
+
+  Storage --> Service : [] (empty array)
+  deactivate Storage
+  Service --> History : [] (empty array)
+  deactivate Service
+
+  History -> History : setHistory([])
+  History --> User : Display empty state
+
+  note right of User
+    Empty state message:
+    "No itineraries saved yet.
+    Generate your first trip plan
+    to see it here!"
+  end note
+
+else Storage Error
+
+  Storage --> Service : throws Error
+  deactivate Storage
+  Service --> History : throws Error
+  deactivate Service
+
+  History -> History : catch(err)
+  History -> History : setError(err.message)
+
+  History -> Error : <ErrorDisplay\n  message={error}\n/>
+  activate Error
+  Error --> User : Display error with\nrole='alert'
+  deactivate Error
+
+  note right of Error
+    Error handling for:
+    - Corrupted localStorage data
+    - JSON parse failures
+    - Storage access denied
+  end note
+
+end
+
+deactivate History
+
+== User Selects Itinerary for Detail View ==
+
+User -> History : Click list item (index)
+activate History
+
+History -> History : e.stopPropagation()\n[if clicking delete button]
+
+note right of History
+  Delete button uses stopPropagation
+  to prevent triggering list item
+  selection when clicking delete.
+end note
+
+History -> History : setSelectedIndex(index)
+
+note right of History
+  Conditional rendering:
+  if (selectedIndex !== null)
+    render detail view
+  else
+    render list view
+end note
+
+History -> Display : <ItineraryDisplay\n  markdown={history[selectedIndex]}\n/>
+activate Display
+
+Display -> Display : React-Markdown rendering
+
+note right of Display
+  ItineraryDisplay component:
+  - Renders full markdown itinerary
+  - Uses react-markdown with remark-gfm
+  - Semantic HTML output (h1, h2, ul, li)
+  - Handles GFM features (tables, etc.)
+end note
+
+Display --> User : Display full itinerary
+deactivate Display
+
+History --> User : Show "Back to History" button
+
+deactivate History
+
+== User Navigates Back to List ==
+
+User -> History : Click "Back to History" button
+activate History
+
+History -> History : setSelectedIndex(null)
+
+note right of History
+  Clear selectedIndex state
+  triggers re-render with
+  list view (conditional rendering)
+end note
+
+History --> User : Display list view
+deactivate History
+
+== User Deletes Itinerary ==
+
+User -> History : Click delete button (index)
+activate History
+
+History -> History : handleDelete(index, e)
+History -> History : e.stopPropagation()
+
+note right of History
+  Prevent list item click
+  from triggering when
+  delete button is clicked
+end note
+
+History -> History : window.confirm(\n  'Are you sure you want to\n  delete this itinerary?'\n)
+
+alt User Confirms Delete
+
+  History -> History : Confirmation = true
+
+  History -> History : updatedHistory =\n  history.filter((_, i) => i !== index)
+
+  note right of History
+    Filter history array to
+    remove item at index.
+    This is a local state update.
+  end note
+
+  History -> History : setHistory(updatedHistory)
+
+  History -> Storage : Direct localStorage access
+
+  note right of History
+    Workaround: IItineraryService
+    does not have deleteFromHistory
+    method, so HistoryView directly
+    updates localStorage.
+  end note
+
+  activate Storage
+
+  History -> Storage : localStorage.setItem(\n  'itinerary-history',\n  JSON.stringify(updatedHistory)\n)
+
+  alt Storage Update Success
+
+    Storage --> History : void
+    deactivate Storage
+
+    History -> History : Check if deleted item\nwas selected
+
+    alt Deleted Item Was Selected
+
+      History -> History : if (selectedIndex === index)\n  setSelectedIndex(null)
+
+      note right of History
+        Clear selection if the
+        deleted itinerary was
+        currently being viewed.
+      end note
+
+    end
+
+    History --> User : Display updated list
+
+    note right of User
+      List now shows one fewer item.
+      Remaining items maintain their
+      most-recent-first ordering.
+    end note
+
+  else Storage Update Error
+
+    Storage --> History : throws Error (quota, etc.)
+    deactivate Storage
+
+    History -> History : catch(err)
+    History -> History : setError(\n  'Failed to delete itinerary'\n)
+
+    History -> Error : <ErrorDisplay\n  message={error}\n/>
+    activate Error
+    Error --> User : Display error
+    deactivate Error
+
+    note right of History
+      Local state already updated,
+      but storage persistence failed.
+      On next mount, deleted item
+      will reappear (inconsistency).
+    end note
+
+  end
+
+else User Cancels Delete
+
+  History -> History : Confirmation = false
+
+  History --> User : No changes\n(list unchanged)
+
+end
+
+deactivate History
+
+@enduml

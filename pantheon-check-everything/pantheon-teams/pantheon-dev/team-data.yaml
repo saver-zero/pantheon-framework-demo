@@ -1,0 +1,21 @@
+agents:
+  frontend-engineer: React frontend specialist responsible for UI component development,
+    form handling, state management, responsive design, and user experience implementation.
+  integration-engineer: API integration and service abstraction specialist responsible
+    for designing pluggable API layers, implementing CLI and HTTP clients, JSON schema
+    validation, and AI prompt engineering.
+  routine-designer: A Pantheon specialist agent. Systematic routine designer who creates
+    and maintains reusable routines, templates, and checklists to streamline team
+    workflows and ensure consistent quality. Use PROACTIVELY when you need new or
+    improved routines to enhance team efficiency and effectiveness.
+  tech-lead: A Pantheon specialist agent. Delivery-minded technical lead who owns
+    the post-kickoff architecture, creates and grooms the backlog, and resolves trade-offs
+    between business intent and system integrity. Use PROACTIVELY when you need architecture
+    guides, technology stack decisions, design patterns, or structured architectural
+    decision records before implementation begins.
+path:
+  docs: '{{ pantheon_artifacts_root }}/docs/'
+  tickets:
+    backlog: '{{ pantheon_artifacts_root }}/tickets/0_backlog/'
+    done: '{{ pantheon_artifacts_root }}/tickets/2_done/'
+    todo: '{{ pantheon_artifacts_root }}/tickets/1_todo/'

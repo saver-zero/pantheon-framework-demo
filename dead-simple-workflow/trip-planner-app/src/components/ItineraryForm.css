@@ -1,0 +1,107 @@
+.itinerary-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  background: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.itinerary-form .form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.itinerary-form label {
+  display: block;
+  font-weight: 500;
+  color: var(--secondary-color);
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-base);
+}
+
+.itinerary-form input,
+.itinerary-form select {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  background-color: var(--background);
+  color: var(--text-color);
+}
+
+.itinerary-form input:focus,
+.itinerary-form select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.itinerary-form input::placeholder {
+  color: var(--text-lighter);
+}
+
+.itinerary-form input:disabled,
+.itinerary-form select:disabled {
+  background-color: var(--background-alt);
+  cursor: not-allowed;
+}
+
+.itinerary-form button[type="submit"] {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  margin-top: var(--spacing-md);
+}
+
+.itinerary-form button[type="submit"]:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+.itinerary-form button[type="submit"]:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.itinerary-form button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .itinerary-form {
+    padding: var(--spacing-lg);
+    margin: var(--spacing-md);
+  }
+
+  .itinerary-form .form-group {
+    margin-bottom: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .itinerary-form {
+    padding: var(--spacing-md);
+  }
+
+  .itinerary-form label {
+    font-size: var(--font-size-sm);
+  }
+
+  .itinerary-form input,
+  .itinerary-form select {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .itinerary-form button[type="submit"] {
+    padding: var(--spacing-md);
+    font-size: var(--font-size-base);
+  }
+}

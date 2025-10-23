@@ -1,0 +1,151 @@
+/* HistoryItem Component Styles */
+
+/* Base Container */
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-6);
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-elevated);
+  cursor: pointer;
+  transition: all var(--transition-colors);
+  position: relative;
+}
+
+.history-item:hover {
+  background-color: var(--color-bg-hover);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.history-item:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.history-item:active {
+  transform: translateY(0);
+}
+
+/* Content Section */
+.history-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-item__destination {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-3) 0;
+  color: var(--color-text-primary);
+}
+
+.history-item__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.history-item__detail {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.history-item__detail strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  margin-right: var(--space-1);
+}
+
+/* Delete Button */
+.history-item__delete-btn {
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-error-bg);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-sm);
+  color: var(--color-error);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-colors);
+  margin-left: var(--space-4);
+  flex-shrink: 0;
+}
+
+.history-item__delete-btn:hover {
+  background-color: var(--color-error);
+  color: white;
+  transform: scale(1.05);
+}
+
+.history-item__delete-btn:active {
+  transform: scale(0.98);
+}
+
+.history-item__delete-btn:focus {
+  outline: 2px solid var(--color-error);
+  outline-offset: 2px;
+}
+
+/* Design tokens now handle light/dark mode automatically, no media query needed */
+
+/* Responsive Design - Tablet */
+@media (max-width: 768px) {
+  .history-item {
+    padding: var(--space-5);
+  }
+
+  .history-item__destination {
+    font-size: var(--font-size-lg);
+  }
+
+  .history-item__details {
+    gap: var(--space-3);
+  }
+
+  .history-item__detail {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* Responsive Design - Mobile */
+@media (max-width: 480px) {
+  .history-item {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-4);
+  }
+
+  .history-item__destination {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--space-2);
+  }
+
+  .history-item__details {
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  .history-item__detail {
+    font-size: var(--font-size-sm);
+  }
+
+  .history-item__delete-btn {
+    margin-left: 0;
+    width: 100%;
+    padding: var(--space-3);
+    font-size: var(--font-size-base);
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .history-item:hover,
+  .history-item__delete-btn:hover {
+    transform: none;
+  }
+}

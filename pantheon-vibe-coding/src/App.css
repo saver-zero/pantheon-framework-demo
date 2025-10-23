@@ -1,0 +1,225 @@
+/* Root styling */
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Application Shell */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navigation Styles */
+.app-nav {
+  background-color: var(--color-bg-elevated);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: var(--transition-colors);
+}
+
+.nav-container {
+  max-width: var(--breakpoint-wide);
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  text-decoration: none;
+  color: var(--color-text-primary);
+  transition: var(--transition-colors);
+}
+
+.nav-logo:hover {
+  color: var(--color-primary);
+}
+
+.nav-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+/* Desktop Navigation Menu */
+.nav-menu {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: var(--space-6);
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  transition: var(--transition-colors);
+  display: block;
+}
+
+.nav-link:hover {
+  color: var(--color-primary);
+  background-color: var(--color-bg-secondary);
+}
+
+.nav-link-active {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  background: transparent;
+  border: none;
+  padding: var(--space-2);
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger-line {
+  width: 24px;
+  height: 2px;
+  background-color: var(--color-text-primary);
+  transition: var(--transition-base);
+  border-radius: var(--radius-full);
+}
+
+.mobile-menu-toggle:hover .hamburger-line {
+  background-color: var(--color-primary);
+}
+
+/* Mobile Menu Backdrop */
+.mobile-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+  top: 73px;
+}
+
+/* Mobile Menu Open State */
+.nav-menu-open {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 73px;
+  right: 0;
+  width: 280px;
+  max-width: 80vw;
+  background-color: var(--color-bg-elevated);
+  border-left: 1px solid var(--color-border);
+  padding: var(--space-4);
+  gap: var(--space-2);
+  z-index: 50;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Desktop Navigation (768px and up) */
+@media (min-width: 768px) {
+  .nav-menu {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .mobile-menu-toggle {
+    display: none;
+  }
+
+  .mobile-menu-backdrop {
+    display: none;
+  }
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  width: 100%;
+}
+
+/* Page Wrapper Utility */
+.page-wrapper {
+  max-width: var(--breakpoint-wide);
+  margin: 0 auto;
+  padding: var(--space-4);
+  width: 100%;
+}
+
+/* Responsive padding adjustments */
+@media (min-width: 768px) {
+  .page-wrapper {
+    padding: var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-wrapper {
+    padding: var(--space-8);
+  }
+}
+
+/* Layout Utilities */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-auto-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.card-container {
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-colors), box-shadow var(--transition-base);
+}
+
+.card-container:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Vertical Spacing Utilities */
+.section-spacing {
+  margin-top: var(--space-12);
+  margin-bottom: var(--space-12);
+}
+
+.section-spacing-sm {
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-8);
+}

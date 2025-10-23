@@ -1,0 +1,13 @@
+{
+  "pantheon-team-builder": {
+    "create-team-blueprint": 1,
+    "create-team-readme": 1,
+    "create-team-profile": 1,
+    "create-agent": 4
+  },
+  "feature-development": {
+    "create-feature-brainstorm": 1,
+    "create-ascii-wireframe": 1,
+    "create-implementation-plan": 2
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "pantheon-dev": {
+    "create-agent": 1,
+    "create-kickoff-ticket": 1,
+    "create-architecture-guide": 1,
+    "create-ticket": 16
+  }
+}

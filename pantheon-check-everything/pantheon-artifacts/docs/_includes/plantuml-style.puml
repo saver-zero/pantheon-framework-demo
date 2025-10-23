@@ -1,0 +1,47 @@
+@startuml
+' Shared PlantUML styling for consistent diagrams across the knowledge base
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+' Component styling
+skinparam component {
+  BackgroundColor #E3F2FD
+  BorderColor #1976D2
+  FontColor #000000
+  FontStyle bold
+}
+
+' Package styling
+skinparam package {
+  BackgroundColor #F5F5F5
+  BorderColor #757575
+  FontColor #000000
+}
+
+' Note styling
+skinparam note {
+  BackgroundColor #FFF9C4
+  BorderColor #FBC02D
+  FontColor #000000
+}
+
+' Sequence diagram styling
+skinparam sequence {
+  ArrowColor #1976D2
+  ActorBorderColor #1976D2
+  ActorBackgroundColor #E3F2FD
+  ParticipantBorderColor #1976D2
+  ParticipantBackgroundColor #E3F2FD
+  LifeLineBorderColor #1976D2
+}
+
+' Class diagram styling
+skinparam class {
+  BackgroundColor #E3F2FD
+  BorderColor #1976D2
+  ArrowColor #1976D2
+}
+
+@enduml

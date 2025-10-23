@@ -1,0 +1,6 @@
+Create a {{days}}-day travel itinerary for {{destination}} for {{party_info}} visiting in the month of {{travel_month}}.
+
+Include time periods (morning/afternoon/evening/night/late_night) only when relevant.
+Each time period should include attractions, descriptions, what to do, and where to eat.
+Make the itinerary appropriate for the party demographic and the time of year.
+Consider seasonal events, weather conditions, and appropriate activities for the month of {{travel_month}}.

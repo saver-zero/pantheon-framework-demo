@@ -1,0 +1,14 @@
+{
+  "pantheon-team-builder": {
+    "create-team-blueprint": 2,
+    "create-team-readme": 2,
+    "create-team-profile": 2,
+    "create-agent": 7
+  },
+  "travel-itinerary-planner": {
+    "create-travel-preferences": 3,
+    "create-destination-research": 3,
+    "create-trip-plan": 3,
+    "create-flight-options": 5
+  }
+}

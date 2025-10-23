@@ -1,0 +1,1 @@
+import "artifact-sections://get-spending-insights-report"

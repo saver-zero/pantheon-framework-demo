@@ -1,0 +1,167 @@
+@startuml
+/'
+@id: backend-deployment
+@title: Backend Deployment Architecture
+@description: Deployment diagram showing the dual-server architecture with frontend and backend separation across development and production environments
+@keywords: [diagram, deployment, architecture, frontend, backend, development, production, ports]
+@relevance: Use this diagram to understand the deployment architecture, environment configurations, and how frontend and backend communicate in different environments
+'/
+
+!include ../_includes/plantuml-style.puml
+
+title Backend Deployment Architecture
+
+node "Development Environment" {
+  node "Developer Machine" {
+    component "Vite Dev Server\n(Port 5273)" as ViteDev {
+      [React Application]
+      [HMR (Hot Module Replacement)]
+      [Proxy Configuration]
+    }
+
+    component "Backend Server\n(Port 3001)" as BackendDev {
+      [Express Server]
+      [POST /api/itinerary]
+      [Claude CLI Service]
+    }
+
+    artifact "Claude CLI" as ClaudeCLIDev
+  }
+
+  cloud "Environment Variables\n(Development)" as EnvDev {
+    [VITE_API_MODE=http]
+    [VITE_API_BASE_URL=http://localhost:3001]
+    [PORT=3001]
+  }
+}
+
+node "Production Environment" {
+  node "CDN / Web Server" as CDN {
+    component "Static Frontend\n(HTTPS)" as StaticFrontend {
+      [Bundled React App]
+      [Static HTML/CSS/JS]
+    }
+  }
+
+  node "Application Server" as AppServer {
+    component "Backend Server\n(Port 3001)" as BackendProd {
+      [Express Server]
+      [POST /api/itinerary]
+      [Claude CLI Service]
+    }
+
+    artifact "Claude CLI" as ClaudeCLIProd
+  }
+
+  node "Load Balancer" as LB {
+    [HTTPS Termination]
+    [Health Checks]
+    [Request Routing]
+  }
+
+  cloud "Environment Variables\n(Production)" as EnvProd {
+    [VITE_API_MODE=http]
+    [VITE_API_BASE_URL=https://api.example.com]
+    [PORT=3001]
+    [NODE_ENV=production]
+  }
+}
+
+actor "Developer" as Dev
+actor "End User" as User
+
+' Development flow
+Dev --> ViteDev : http://localhost:5273
+ViteDev --> BackendDev : Proxy /api/* to\nhttp://localhost:3001
+BackendDev --> ClaudeCLIDev : spawn('claude')
+ClaudeCLIDev --> BackendDev : markdown response
+BackendDev --> ViteDev : HTTP response
+ViteDev --> Dev : Rendered page
+
+' Production flow
+User --> CDN : HTTPS request
+CDN --> User : Static assets
+User --> LB : API requests\nhttps://api.example.com/api/itinerary
+LB --> BackendProd : Forward to backend
+BackendProd --> ClaudeCLIProd : spawn('claude')
+ClaudeCLIProd --> BackendProd : markdown response
+BackendProd --> LB : HTTP response
+LB --> User : HTTPS response
+
+' Configuration relationships
+EnvDev --> ViteDev : Configures
+EnvDev --> BackendDev : Configures
+EnvProd --> StaticFrontend : Build-time injection
+EnvProd --> BackendProd : Runtime configuration
+
+note right of ViteDev
+  Development Setup:
+  - npm run dev (frontend)
+  - npm run dev:backend (backend)
+  - Vite proxy forwards /api/* to backend
+  - Hot reload enabled for both servers
+  - Frontend: http://localhost:5273
+  - Backend: http://localhost:3001
+end note
+
+note right of BackendDev
+  Backend Server (Development):
+  - Express server with CORS enabled
+  - CORS origin: http://localhost:5273
+  - Spawns Claude CLI for each request
+  - Returns markdown strings
+  - Logs all requests for debugging
+end note
+
+note right of StaticFrontend
+  Production Frontend:
+  - Built with: npm run build
+  - Served from CDN or web server
+  - Environment variables baked in at build time
+  - API_BASE_URL points to production backend
+  - All assets minified and optimized
+end note
+
+note right of BackendProd
+  Backend Server (Production):
+  - Behind load balancer
+  - CORS configured for production domain
+  - Health check endpoint: GET /health
+  - Spawns Claude CLI for each request
+  - Logging to aggregation service
+  - Error monitoring enabled
+end note
+
+note bottom of ClaudeCLIDev
+  Claude CLI (Development):
+  - Installed globally on dev machine
+  - Executed via spawn() with -p flag
+  - stdin.end() called immediately
+  - stdout collected and returned
+  - 60-second timeout per request
+end note
+
+note bottom of ClaudeCLIProd
+  Claude CLI (Production):
+  - Installed on application server
+  - Same spawn-based execution pattern
+  - stdin.end() called immediately
+  - stdout collected and returned
+  - 60-second timeout per request
+  - Consider API key authentication
+end note
+
+note as ConfigNote
+  Key Environment Variables:
+
+  **Frontend (Build-time)**:
+  - VITE_API_MODE: 'http' (enables HTTPApiClient)
+  - VITE_API_BASE_URL: Backend server URL
+
+  **Backend (Runtime)**:
+  - PORT: Server port (default 3001)
+  - NODE_ENV: 'development' or 'production'
+  - CORS_ORIGIN: Allowed frontend origin
+end ConfigNote
+
+@enduml

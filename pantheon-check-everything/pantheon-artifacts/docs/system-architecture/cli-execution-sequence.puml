@@ -1,0 +1,167 @@
+@startuml
+/'
+@id: cli-execution-sequence
+@title: CLI Execution Sequence for Itinerary Generation
+@description: Sequence diagram showing the dual-server architecture with backend server handling spawn-based CLI execution and returning markdown responses to the frontend
+@keywords: [diagram, sequence, backend-server, spawn, markdown, http, ports]
+@relevance: Use this diagram to understand the request flow from frontend (port 5273) through backend server (port 3001) to spawn-based Claude CLI execution with markdown response flow
+'/
+
+!include ../_includes/plantuml-style.puml
+
+title CLI Execution Sequence - Backend Server Architecture
+
+actor User
+box "Frontend (Port 5273)" #LightBlue
+  participant "ItineraryForm\nComponent" as Form
+  participant HTTPApiClient as HTTP
+end box
+
+box "Backend Server (Port 3001)" #LightGreen
+  participant "Express Server\n/api/itinerary" as Express
+  participant "Claude CLI Service" as ClaudeService
+end box
+
+participant "Claude CLI\nProcess (spawn)" as ClaudeCLI
+
+User -> Form : Submit form\n(destination, party, month, days)
+activate Form
+
+note over Form
+  Log: [HTTPApiClient] generateItinerary called
+  Preparing HTTP request
+end note
+
+Form -> HTTP : generateItinerary(\n  destination,\n  partyInfo,\n  month,\n  days\n)
+activate HTTP
+
+HTTP -> Express : POST http://localhost:3001/api/itinerary\nBody: {destination, partyInfo, month, days}
+activate Express
+
+note over Express
+  CORS validated (origin: http://localhost:5273)
+  Request body parsed
+  Delegating to ClaudeService
+end note
+
+Express -> ClaudeService : generateItinerary(params)
+activate ClaudeService
+
+ClaudeService -> ClaudeService : buildPrompt(params)
+
+note over ClaudeService
+  Construct prompt with trip parameters
+  Prepare spawn arguments
+end note
+
+ClaudeService -> ClaudeCLI : spawn('claude', ['-p', prompt])
+activate ClaudeCLI
+
+note over ClaudeService, ClaudeCLI
+  CRITICAL: Immediately after spawn,
+  call stdin.end() to signal
+  no more input will be sent
+end note
+
+ClaudeService -> ClaudeCLI : stdin.end()
+
+note over ClaudeService
+  Register stdout.on('data') handlers
+  Initialize output buffer
+  Set timeout (60 seconds)
+end note
+
+ClaudeService -> ClaudeService : stdout.on('data', (chunk) => {\n  buffer += chunk\n})
+
+ClaudeService -> ClaudeService : stderr.on('data', (chunk) => {\n  errorBuffer += chunk\n})
+
+alt Success Path
+
+  ClaudeCLI --> ClaudeService : stdout data events\n(markdown chunks)
+
+  note over ClaudeService
+    Collect all stdout chunks
+    into single buffer
+  end note
+
+  ClaudeCLI --> ClaudeService : exit event (code 0)
+  deactivate ClaudeCLI
+
+  ClaudeService -> ClaudeService : Concatenate buffer\nto markdown string
+
+  note over ClaudeService
+    No JSON parsing required
+    Return raw markdown output
+  end note
+
+  ClaudeService --> Express : markdown string
+  deactivate ClaudeService
+
+  Express --> HTTP : HTTP 200\nContent-Type: text/plain\nBody: markdown string
+  deactivate Express
+
+  HTTP --> Form : markdown string
+  deactivate HTTP
+
+  Form -> Form : Store in state
+  Form --> User : Display markdown\nvia ReactMarkdown
+  deactivate Form
+
+else CLI Execution Error
+
+  ClaudeCLI --> ClaudeService : stderr data\n+ exit event (code != 0)
+  deactivate ClaudeCLI
+
+  note over ClaudeService
+    Error: CLI execution failed
+    Exit code: <code>
+    stderr: <errorBuffer>
+  end note
+
+  ClaudeService --> Express : throw Error(\n  "CLI execution failed"\n)
+  deactivate ClaudeService
+
+  Express --> HTTP : HTTP 500\n{\n  error: "Generation failed"\n}
+  deactivate Express
+
+  HTTP --> Form : throw Error
+  deactivate HTTP
+
+  Form --> User : Display error message
+  deactivate Form
+
+else Timeout (60 seconds)
+
+  ClaudeService -> ClaudeCLI : process.kill()
+  deactivate ClaudeCLI
+
+  note over ClaudeService
+    Error: CLI timeout after 60 seconds
+    Killing spawned process
+  end note
+
+  ClaudeService --> Express : throw Error(\n  "Timeout after 60s"\n)
+  deactivate ClaudeService
+
+  Express --> HTTP : HTTP 500\n{\n  error: "Request timeout"\n}
+  deactivate Express
+
+  HTTP --> Form : throw Error
+  deactivate HTTP
+
+  Form --> User : Display timeout error
+  deactivate Form
+
+end
+
+note over User, ClaudeCLI
+  Key Architecture Changes:
+  - Frontend (port 5273) communicates with Backend Server (port 3001) via HTTP
+  - Backend uses spawn() instead of exec() for better stream handling
+  - stdin.end() called immediately after spawn (critical for proper CLI behavior)
+  - stdout collected via data events into buffer
+  - Response format changed from JSON objects to markdown strings
+  - Frontend receives and displays raw markdown (no parsing needed)
+end note
+
+@enduml

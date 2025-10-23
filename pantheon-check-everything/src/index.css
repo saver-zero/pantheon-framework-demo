@@ -1,0 +1,633 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Design Token System - Colors (Dark Mode Default) */
+  --color-primary: #646cff;
+  --color-primary-hover: #535bf2;
+  --color-primary-active: #4248d4;
+  --color-secondary: #7c8aff;
+  --color-error: #ef5350;
+  --color-error-hover: #e53935;
+  --color-warning: #ff9800;
+  --color-success: #66bb6a;
+
+  /* Neutral colors */
+  --color-text: rgba(255, 255, 255, 0.87);
+  --color-text-secondary: rgba(255, 255, 255, 0.60);
+  --color-background: #242424;
+  --color-background-elevated: #2a2a2a;
+  --color-surface: #1a1a1a;
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-border-focus: #646cff;
+
+  /* Spacing Scale (8px base unit) */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+
+  /* Semantic spacing */
+  --spacing-section: var(--spacing-xl);
+  --spacing-card: var(--spacing-md);
+  --spacing-input: 0.75rem; /* 12px for comfortable touch targets */
+
+  /* Typography */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 2rem;      /* 32px - reduced from 3.2em for h1 */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.1;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Visual Effects */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.4);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Container widths */
+  --container-max-width: 1200px;
+  --container-narrow: 800px;
+  --container-form: 700px;
+
+  /* Apply theme colors */
+  color: var(--color-text);
+  background-color: var(--color-background);
+}
+
+a {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  text-decoration: inherit;
+}
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-tight);
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  font-weight: var(--font-weight-bold);
+}
+
+h2 {
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-tight);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+h2:first-child {
+  margin-top: 0;
+}
+
+h3 {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-normal);
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+h3:first-child {
+  margin-top: 0;
+}
+
+h4 {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-normal);
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+h4:first-child {
+  margin-top: 0;
+}
+
+h5, h6 {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  margin-top: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+h5:first-child, h6:first-child {
+  margin-top: 0;
+}
+
+button {
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: var(--font-weight-medium);
+  font-family: inherit;
+  background-color: var(--color-surface);
+  cursor: pointer;
+  transition: border-color var(--transition-normal);
+}
+button:hover {
+  border-color: var(--color-primary);
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Container System */
+.container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-md);
+}
+
+.container--narrow {
+  max-width: var(--container-narrow);
+}
+
+.app-container {
+  padding: var(--spacing-md);
+}
+
+/* Navigation Styles */
+.nav-container {
+  margin: var(--spacing-md) 0;
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.nav-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-weight: var(--font-weight-normal);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast);
+  min-height: 44px;
+  font-size: var(--font-size-base);
+}
+
+.nav-button:hover:not(:disabled) {
+  background-color: var(--color-background-elevated);
+  border-color: var(--color-primary);
+}
+
+.nav-button--active {
+  font-weight: var(--font-weight-bold);
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  border-color: var(--color-primary);
+}
+
+.nav-button:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+/* Loading Indicator */
+.loading-indicator {
+  margin: var(--spacing-md) 0;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* Button Variants */
+.btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  transition: background-color var(--transition-fast),
+              transform var(--transition-fast);
+  font-family: inherit;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn-danger {
+  background-color: var(--color-error);
+  color: var(--color-background);
+}
+
+.btn-danger:hover {
+  background-color: var(--color-error-hover);
+}
+
+/* History View Styles */
+.history-container {
+  max-width: var(--container-narrow);
+  margin: 0 auto;
+}
+
+.history-heading {
+  margin-bottom: var(--spacing-md);
+}
+
+.history-detail-container {
+  max-width: var(--container-narrow);
+  margin: 0 auto;
+}
+
+.history-empty-state {
+  text-align: center;
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-md) 0;
+}
+
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.history-item {
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--transition-fast),
+              box-shadow var(--transition-fast),
+              transform var(--transition-fast);
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.history-item:hover {
+  background-color: var(--color-background-elevated);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+.history-item__container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.history-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.history-item__destination {
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+}
+
+.history-item__position {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.history-item__details {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+/* Itinerary Display Typography */
+.itinerary-display {
+  max-width: var(--container-narrow);
+  margin: 0 auto;
+  padding: var(--spacing-md);
+}
+
+.itinerary-display p {
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--spacing-md);
+}
+
+.itinerary-display ul,
+.itinerary-display ol {
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--spacing-md);
+  padding-left: var(--spacing-lg);
+}
+
+.itinerary-display li {
+  margin-bottom: var(--spacing-xs);
+}
+
+.itinerary-display blockquote {
+  border-left: 4px solid var(--color-primary);
+  padding-left: var(--spacing-md);
+  margin-left: 0;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.itinerary-display h1,
+.itinerary-display h2,
+.itinerary-display h3,
+.itinerary-display h4,
+.itinerary-display h5,
+.itinerary-display h6 {
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+}
+
+.itinerary-display h1:first-child,
+.itinerary-display h2:first-child,
+.itinerary-display h3:first-child,
+.itinerary-display h4:first-child,
+.itinerary-display h5:first-child,
+.itinerary-display h6:first-child {
+  margin-top: 0;
+}
+
+/* Form Container Responsive Styles - Mobile First */
+.itinerary-form {
+  width: 100%;
+  max-width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Form Field Container */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+/* Label Styling */
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: var(--font-weight-medium);
+  font-size: 1rem;
+}
+
+/* Input Styling - Mobile First with Touch-Friendly Targets */
+.form-input {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--spacing-input);
+  font-size: 16px; /* Prevents iOS zoom on focus */
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-sizing: border-box;
+  background-color: inherit;
+  color: inherit;
+  transition: background-color var(--transition-normal),
+              border-color var(--transition-normal),
+              outline var(--transition-fast);
+}
+
+.form-input:focus {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  background-color: var(--color-background-elevated);
+  transition: background-color var(--transition-normal),
+              border-color var(--transition-normal);
+}
+
+/* Validation Error Styling */
+.form-error {
+  display: block;
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+  min-height: 1.25rem;
+}
+
+.form-input.error {
+  border-color: var(--color-error);
+  outline-color: var(--color-error);
+}
+
+/* Button Styling - Touch-Friendly */
+.form-submit {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+/* Tablet Breakpoint - 768px and up */
+@media (min-width: 768px) {
+  .itinerary-form {
+    max-width: 600px;
+    padding: 1.5rem;
+  }
+
+  /* Two-column layout for smaller fields */
+  .form-field--month,
+  .form-field--days {
+    display: inline-flex;
+    width: calc(50% - 0.5rem);
+    margin-right: 1rem;
+  }
+
+  .form-field--days {
+    margin-right: 0;
+  }
+
+  /* Submit button - constrained width on larger screens */
+  .form-submit {
+    width: auto;
+    min-width: 200px;
+    padding: 0.75rem 2rem;
+  }
+
+  /* Label and input sizing for tablet */
+  .form-label {
+    font-size: 1.05rem;
+  }
+
+  .form-input {
+    font-size: 1rem;
+  }
+}
+
+/* Desktop Breakpoint - 1024px and up */
+@media (min-width: 1024px) {
+  .itinerary-form {
+    max-width: 700px;
+    padding: 2rem;
+  }
+
+  /* Larger text for comfortable desktop viewing */
+  .form-label {
+    font-size: 1.1rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .form-input {
+    padding: 0.875rem;
+    font-size: 1.05rem;
+  }
+
+  .form-submit {
+    min-width: 250px;
+    padding: 0.875rem 2.5rem;
+    font-size: 1.05rem;
+  }
+
+  /* Enhanced spacing for desktop */
+  .form-field {
+    margin-bottom: 1.25rem;
+  }
+}
+
+
+/* Loading Animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading-indicator {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .loading-indicator {
+    animation: none;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Override color tokens for light mode */
+    --color-primary: #5a67d8;
+    --color-primary-hover: #4c51bf;
+    --color-primary-active: #434190;
+    --color-secondary: #667eea;
+    --color-error: #e53e3e;
+    --color-error-hover: #c53030;
+    --color-warning: #ed8936;
+    --color-success: #48bb78;
+
+    /* Neutral colors for light mode */
+    --color-text: #213547;
+    --color-text-secondary: #4a5568;
+    --color-background: #ffffff;
+    --color-background-elevated: #f7fafc;
+    --color-surface: #f9f9f9;
+    --color-border: #e2e8f0;
+    --color-border-focus: #5a67d8;
+
+    /* Lighter shadows for light mode */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+    /* Apply light mode theme */
+    color: var(--color-text);
+    background-color: var(--color-background);
+  }
+
+  a:hover {
+    color: var(--color-primary-hover);
+  }
+
+  button {
+    background-color: var(--color-surface);
+  }
+
+  .form-input {
+    border-color: var(--color-border);
+  }
+
+  .form-error {
+    color: var(--color-error);
+  }
+}

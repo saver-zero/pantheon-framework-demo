@@ -1,0 +1,247 @@
+@startuml
+/'
+@id: error-boundary-lifecycle
+@title: ErrorBoundary Lifecycle and Error Recovery Flow
+@description: Sequence diagram showing how ErrorBoundary catches rendering errors, displays fallback UI, logs errors for debugging, and provides recovery via page reload
+@keywords: [diagram, sequence, error-boundary, error-handling, react-lifecycle, recovery, fallback-ui]
+@relevance: Use this diagram to understand ErrorBoundary behavior, React error boundary lifecycle methods (getDerivedStateFromError, componentDidCatch), and error recovery flow through page reload
+'/
+
+!include ../_includes/plantuml-style.puml
+
+title ErrorBoundary Lifecycle and Error Recovery Flow
+
+actor User
+participant "React" as React
+participant "ErrorBoundary" as Boundary
+participant "Child Component\n(ThrowError)" as Child
+participant "ErrorDisplay" as ErrorDisplay
+participant "Browser Console" as Console
+participant "window.location" as Window
+
+== Normal Rendering (No Error) ==
+
+User -> React : Interact with app
+activate React
+
+React -> Boundary : render()
+activate Boundary
+
+Boundary -> Child : render children
+activate Child
+
+note right of Child
+  Child component renders
+  normally without errors
+end note
+
+Child --> Boundary : JSX elements
+deactivate Child
+
+Boundary --> React : JSX with children
+deactivate Boundary
+
+React --> User : Display UI
+deactivate React
+
+note right of Boundary
+  ErrorBoundary state:
+  hasError: false
+  error: null
+
+  Renders children normally
+end note
+
+== Error Occurs During Rendering ==
+
+User -> React : Interact triggering\nerror state
+activate React
+
+React -> Boundary : render()
+activate Boundary
+
+Boundary -> Child : render children
+activate Child
+
+Child -> Child : Error condition met\n(e.g., prop.shouldThrow = true)
+
+note right of Child
+  Child component throws error
+  during render lifecycle:
+  throw new Error('Test error')
+end note
+
+Child --> React : throws Error
+deactivate Child
+
+note right of React
+  React catches error thrown
+  during component rendering.
+  Calls error boundary
+  lifecycle methods.
+end note
+
+== Error Boundary Lifecycle ==
+
+React -> Boundary : getDerivedStateFromError(error)
+activate Boundary
+
+note right of Boundary
+  Static lifecycle method
+  Updates state to trigger
+  fallback UI rendering
+
+  Pure state update - no side effects
+end note
+
+Boundary -> Boundary : return {\n  hasError: true,\n  error: error\n}
+
+Boundary --> React : new state
+deactivate Boundary
+
+React -> Boundary : componentDidCatch(\n  error,\n  errorInfo\n)
+activate Boundary
+
+note right of Boundary
+  Lifecycle method for side effects
+  Logs error details for debugging
+end note
+
+Boundary -> Console : console.error(\n  'ErrorBoundary caught an error:',\n  error,\n  errorInfo\n)
+activate Console
+
+note right of Console
+  Error logged with:
+  - Error message and stack trace
+  - Component stack trace (errorInfo)
+  - Helps developers debug
+    rendering failures
+end note
+
+Console --> Boundary : logged
+deactivate Console
+
+Boundary --> React : void
+deactivate Boundary
+
+== Fallback UI Rendering ==
+
+React -> Boundary : render()
+activate Boundary
+
+note right of Boundary
+  ErrorBoundary state:
+  hasError: true
+  error: Error object
+
+  Renders fallback UI instead
+  of children
+end note
+
+Boundary -> Boundary : Check hasError === true
+
+Boundary -> ErrorDisplay : <ErrorDisplay\n  errorMessage={ERROR_MESSAGES.BOUNDARY_ERROR}\n  errorType="error"\n  onRetry={handleReload}\n/>
+activate ErrorDisplay
+
+note right of ErrorDisplay
+  ErrorDisplay shows:
+  - "A rendering error occurred.
+     Please reload the page."
+  - Red color (error type)
+  - Retry button (onRetry callback)
+  - role='alert' (accessibility)
+end note
+
+ErrorDisplay --> Boundary : JSX
+deactivate ErrorDisplay
+
+Boundary --> React : Fallback JSX
+deactivate Boundary
+
+React --> User : Display error UI\nwith reload button
+deactivate React
+
+note right of User
+  User sees fallback error message
+  instead of broken UI or blank screen.
+  Retry button provides clear
+  recovery action.
+end note
+
+== User Triggers Recovery ==
+
+User -> ErrorDisplay : Click "Retry" button
+activate ErrorDisplay
+
+ErrorDisplay -> Boundary : onRetry()
+activate Boundary
+
+Boundary -> Boundary : handleReload()
+
+note right of Boundary
+  handleReload method:
+  window.location.reload()
+
+  Triggers full page reload
+  to reset application state
+end note
+
+Boundary -> Window : reload()
+activate Window
+
+note right of Window
+  Full page reload:
+  - Clears all component state
+  - Re-initializes application
+  - Fresh React component tree
+  - Most reliable recovery for
+    rendering errors
+end note
+
+Window --> User : Page reloads
+deactivate Window
+deactivate Boundary
+deactivate ErrorDisplay
+
+note right of User
+  Application reloads and
+  ErrorBoundary state resets to:
+  hasError: false
+  error: null
+
+  User can retry their action
+  after page reload completes.
+end note
+
+== Notes on Error Boundary Limitations ==
+
+note over React, Child
+  ErrorBoundary catches errors in:
+  - Component render methods
+  - Lifecycle methods (componentDidMount, etc.)
+  - Constructors of child components
+
+  ErrorBoundary does NOT catch:
+  - Event handlers (use try/catch in handler)
+  - Async code (setTimeout, promises)
+  - Server-side rendering errors
+  - Errors in ErrorBoundary itself
+end note
+
+note over Boundary, ErrorDisplay
+  Error recovery strategy:
+
+  window.location.reload() provides:
+  - Complete state reset
+  - Reliable recovery
+  - Simple implementation
+
+  Alternative approaches (not implemented):
+  - Reset error boundary state with key change
+  - Partial component remounting
+  - Custom recovery based on error type
+
+  Page reload is most reliable for MVP.
+end note
+
+@enduml

@@ -1,0 +1,176 @@
+@startuml
+/'
+@id: history-view-state-diagram
+@title: History View State Transitions
+@description: Activity diagram illustrating the state transitions within HistoryView component between list view and detail view states, including error states and empty states
+@keywords: [diagram, activity, state, history, list-detail, conditional-rendering, state-management]
+@relevance: Use this diagram to understand HistoryView component state management, conditional rendering logic, and state transitions between different view modes
+'/
+
+!include ../_includes/plantuml-style.puml
+
+title History View State Transitions
+
+start
+
+:Component Mounts;
+
+note right
+  useEffect with empty
+  dependency array triggers
+  history retrieval on mount
+end note
+
+:Call service.getHistory();
+
+if (Storage Error?) then (yes)
+  :Set error state;
+  :Render ErrorDisplay;
+
+  note right
+    Error State:
+    - Display error message
+    - No retry mechanism
+    - User must reload or
+      navigate away
+  end note
+
+  stop
+
+else (no)
+
+  if (History Length === 0?) then (yes)
+    :Set history = [];
+    :Render Empty State;
+
+    note right
+      Empty State:
+      - Message: "No itineraries
+        saved yet. Generate your
+        first trip plan to see
+        it here!"
+      - No list displayed
+      - Encourages user action
+    end note
+
+    :Wait for user action;
+    stop
+
+  else (no)
+    :Set history = markdown[];
+    :Extract metadata for each item;
+    :Set selectedIndex = null;
+    :Render List View;
+
+    note right
+      List View State:
+      - Display ul/li list
+      - Show metadata summaries
+      - Position indicators
+      - Delete buttons visible
+      - All items clickable
+    end note
+
+  endif
+
+endif
+
+partition "User Interactions" {
+
+  repeat
+
+    :Wait for user interaction;
+
+    if (User Action?) then (Select Item)
+
+      :User clicks list item;
+      :Set selectedIndex = index;
+      :Render Detail View;
+
+      note right
+        Detail View State:
+        - selectedIndex !== null
+        - Render ItineraryDisplay
+          with history[selectedIndex]
+        - Show "Back to History"
+          button
+        - List view hidden
+      end note
+
+      :Wait for user action;
+
+      if (User clicks Back?) then (yes)
+        :Set selectedIndex = null;
+        :Render List View;
+
+        note right
+          Return to List View:
+          - Clear selectedIndex
+          - Conditional rendering
+            switches to list mode
+          - History array unchanged
+        end note
+
+      endif
+
+    elseif (User Action?) then (Delete Item)
+
+      :User clicks delete button;
+      :e.stopPropagation();
+
+      note right
+        Prevent list item
+        selection when
+        delete is clicked
+      end note
+
+      :Show confirmation dialog;
+
+      if (User confirms?) then (yes)
+
+        :Filter history array;
+        :Update localStorage;
+
+        if (Storage Update Success?) then (yes)
+          :Set history = filtered array;
+
+          if (Deleted item was selected?) then (yes)
+            :Set selectedIndex = null;
+          endif
+
+          if (History now empty?) then (yes)
+            :Render Empty State;
+            stop
+          else (no)
+            :Render List View;
+          endif
+
+        else (no)
+          :Set error state;
+          :Render ErrorDisplay;
+
+          note right
+            Storage Error State:
+            - Local state updated
+            - Storage persistence failed
+            - Error message displayed
+            - Inconsistency on reload
+          end note
+
+        endif
+
+      else (no)
+        :No state change;
+        :Continue in current view;
+      endif
+
+    endif
+
+  repeat while (Component mounted?) is (yes)
+
+}
+
+:Component Unmounts;
+stop
+
+@enduml

@@ -1,0 +1,199 @@
+@startuml
+/'
+@id: spawn-lifecycle
+@title: Spawn-based Claude CLI Lifecycle
+@description: Detailed sequence diagram showing the spawn-based CLI execution lifecycle with critical stdin.end() call and stream handling patterns
+@keywords: [diagram, sequence, spawn, lifecycle, stdin, stdout, stderr, streams]
+@relevance: Use this diagram to understand the detailed spawn lifecycle, stream handling patterns, and timeout management for implementing CLI integrations
+'/
+
+!include ../_includes/plantuml-style.puml
+
+title Spawn-based Claude CLI Lifecycle
+
+participant "Claude CLI Service" as Service
+participant "child_process" as ChildProcess
+participant "spawned process\n(Claude CLI)" as ClaudeProcess
+participant "stdin stream" as Stdin
+participant "stdout stream" as Stdout
+participant "stderr stream" as Stderr
+
+activate Service
+
+Service -> Service : buildPrompt(params)
+
+note over Service
+  Prepare prompt string
+  with trip parameters
+end note
+
+Service -> ChildProcess : spawn('claude', ['-p', prompt])
+activate ChildProcess
+
+ChildProcess -> ClaudeProcess : Create child process
+activate ClaudeProcess
+
+ChildProcess --> Service : childProcess object\nwith streams
+
+note over Service
+  CRITICAL STEP:
+  Immediately call stdin.end()
+  to signal no more input
+end note
+
+Service -> Stdin : childProcess.stdin.end()
+activate Stdin
+
+note over Stdin, ClaudeProcess
+  Calling stdin.end() immediately
+  after spawn is essential for
+  proper CLI behavior. Without it,
+  Claude CLI may hang waiting
+  for more input.
+end note
+
+Stdin -> ClaudeProcess : EOF signal
+deactivate Stdin
+
+Service -> Service : Initialize output buffer = ''
+Service -> Service : Initialize error buffer = ''
+
+Service -> Stdout : stdout.on('data', callback)
+activate Stdout
+
+Service -> Stderr : stderr.on('data', callback)
+activate Stderr
+
+Service -> Service : Set timeout (60 seconds)
+
+note over Service
+  setTimeout(() => {
+    if (!processExited) {
+      childProcess.kill()
+      reject(new Error('Timeout'))
+    }
+  }, 60000)
+end note
+
+alt Normal Execution Path
+
+  ClaudeProcess --> Stdout : Emit data chunks\n(markdown content)
+
+  loop For each stdout chunk
+    Stdout -> Service : data event (chunk)
+    Service -> Service : buffer += chunk.toString()
+  end
+
+  note over Service
+    Collect all chunks into
+    single buffer string
+  end note
+
+  ClaudeProcess --> ChildProcess : Process completes
+  deactivate ClaudeProcess
+
+  ChildProcess -> Service : 'exit' event (code 0)
+
+  note over Service
+    Clear timeout
+    Process completed successfully
+  end note
+
+  Service -> Service : clearTimeout(timeoutId)
+
+  deactivate Stdout
+  deactivate Stderr
+  deactivate ChildProcess
+
+  Service -> Service : return buffer\n(markdown string)
+
+  deactivate Service
+
+else Error Path - Non-zero Exit Code
+
+  ClaudeProcess --> Stderr : Emit error chunks
+
+  loop For each stderr chunk
+    Stderr -> Service : data event (chunk)
+    Service -> Service : errorBuffer += chunk.toString()
+  end
+
+  ClaudeProcess --> ChildProcess : Process exits with error
+  deactivate ClaudeProcess
+
+  ChildProcess -> Service : 'exit' event (code != 0)
+
+  note over Service
+    Error: CLI execution failed
+    Exit code: <code>
+    stderr: <errorBuffer>
+  end note
+
+  Service -> Service : clearTimeout(timeoutId)
+
+  deactivate Stdout
+  deactivate Stderr
+  deactivate ChildProcess
+
+  Service -> Service : throw new Error(\n  `CLI failed: ${errorBuffer}`\n)
+
+  deactivate Service
+
+else Timeout Path - 60 seconds exceeded
+
+  note over Service
+    Timeout reached (60s)
+    Process still running
+  end note
+
+  Service -> ChildProcess : childProcess.kill()
+
+  note over ChildProcess, ClaudeProcess
+    Send SIGTERM to child process
+    to terminate gracefully
+  end note
+
+  ChildProcess -> ClaudeProcess : SIGTERM signal
+  deactivate ClaudeProcess
+
+  deactivate Stdout
+  deactivate Stderr
+  deactivate ChildProcess
+
+  Service -> Service : throw new Error(\n  'CLI execution timeout after 60s'\n)
+
+  deactivate Service
+
+end
+
+note over Service, ClaudeProcess
+  Key Implementation Details:
+
+  1. **Spawn Call**:
+     const childProcess = spawn('claude', ['-p', prompt])
+
+  2. **Critical stdin.end()**:
+     childProcess.stdin.end()
+     Must be called immediately after spawn!
+
+  3. **Stream Handlers**:
+     childProcess.stdout.on('data', (chunk) => buffer += chunk)
+     childProcess.stderr.on('data', (chunk) => errorBuffer += chunk)
+
+  4. **Exit Handler**:
+     childProcess.on('exit', (code) => {
+       if (code === 0) resolve(buffer)
+       else reject(new Error(errorBuffer))
+     })
+
+  5. **Timeout Management**:
+     const timeout = setTimeout(() => {
+       childProcess.kill()
+       reject(new Error('Timeout'))
+     }, 60000)
+
+  6. **Cleanup**:
+     Always clearTimeout in exit handler
+end note
+
+@enduml

@@ -1,0 +1,9 @@
+{
+  "watch": ["server"],
+  "ext": "js",
+  "ignore": ["server/**/*.test.js"],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "delay": 500
+}

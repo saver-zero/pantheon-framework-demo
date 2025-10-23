@@ -1,0 +1,41 @@
+.day-card {
+  background: var(--background);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+.day-card h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.day-card > :last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .day-card {
+    padding: var(--spacing-lg);
+  }
+
+  .day-card h2 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .day-card {
+    padding: var(--spacing-md);
+  }
+
+  .day-card h2 {
+    font-size: var(--font-size-lg);
+  }
+}

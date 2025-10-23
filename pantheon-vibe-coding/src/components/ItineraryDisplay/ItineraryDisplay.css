@@ -1,0 +1,446 @@
+/* ItineraryDisplay Component Styles - Enhanced with Design Tokens */
+
+/* Base Container */
+.itinerary-display {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-8);
+  text-align: left;
+}
+
+/* Metadata Section - Enhanced visual design */
+.itinerary-display__metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+  padding: var(--space-6);
+  background-color: rgba(77, 84, 214, 0.1);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(77, 84, 214, 0.2);
+  box-shadow: var(--shadow-sm);
+}
+
+.itinerary-display__metadata-item {
+  flex: 1 1 200px;
+}
+
+.itinerary-display__metadata-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.itinerary-display__metadata-value {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+/* Days Container */
+.itinerary-display__days {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* Day Display - Enhanced visual separation */
+.day-display {
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-elevated);
+  box-shadow: var(--shadow-sm);
+}
+
+.day-display__header {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--color-primary);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.day-display__time-periods {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Time Period Display - Improved visual hierarchy */
+.time-period-display {
+  padding: var(--space-4);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.time-period-display__header {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-4);
+  color: var(--color-primary);
+  text-transform: capitalize;
+}
+
+.time-period-display__activities {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Activity Display - Enhanced readability and visual appeal */
+.activity-display {
+  padding: var(--space-5);
+  background-color: var(--color-bg-elevated);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.activity-display__attraction-name {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-3);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-snug);
+}
+
+.activity-display__description {
+  margin-bottom: var(--space-4);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+}
+
+.activity-display__section-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-2);
+  margin-top: var(--space-4);
+  color: var(--color-text-secondary);
+}
+
+.activity-display__activities-list {
+  list-style-type: disc;
+  margin-left: var(--space-6);
+  margin-bottom: var(--space-4);
+}
+
+.activity-display__activity-item {
+  margin-bottom: var(--space-2);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+}
+
+.activity-display__dining {
+  padding: var(--space-3);
+  background-color: rgba(77, 84, 214, 0.1);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-4);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-primary);
+  border: 1px solid rgba(77, 84, 214, 0.2);
+}
+
+/* Markdown Itinerary Display Styles - Added in T012 */
+.markdown-itinerary__content {
+  padding: var(--space-6);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-primary);
+}
+
+.markdown-itinerary__error {
+  padding: var(--space-6);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+/* Markdown Headers */
+.markdown-itinerary__content h1 {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--color-primary);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.markdown-itinerary__content h2 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-3);
+  color: var(--color-primary);
+  line-height: var(--line-height-snug);
+}
+
+.markdown-itinerary__content h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-2);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-snug);
+}
+
+.markdown-itinerary__content h4 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-2);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+/* Markdown Paragraphs */
+.markdown-itinerary__content p {
+  margin-bottom: var(--space-4);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-primary);
+}
+
+/* Markdown Lists */
+.markdown-itinerary__content ul,
+.markdown-itinerary__content ol {
+  margin-left: var(--space-6);
+  margin-bottom: var(--space-4);
+  line-height: var(--line-height-normal);
+}
+
+.markdown-itinerary__content ul {
+  list-style-type: disc;
+}
+
+.markdown-itinerary__content ol {
+  list-style-type: decimal;
+}
+
+.markdown-itinerary__content li {
+  margin-bottom: var(--space-2);
+  color: var(--color-text-primary);
+}
+
+.markdown-itinerary__content li > ul,
+.markdown-itinerary__content li > ol {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+/* Markdown Text Emphasis */
+.markdown-itinerary__content strong {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.markdown-itinerary__content em {
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+/* Markdown Links */
+.markdown-itinerary__content a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.markdown-itinerary__content a:hover {
+  color: rgba(77, 84, 214, 0.8);
+}
+
+/* Markdown Code */
+.markdown-itinerary__content code {
+  background-color: var(--color-bg-secondary);
+  padding: 0.2em 0.4em;
+  border-radius: var(--radius-sm);
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.markdown-itinerary__content pre {
+  background-color: var(--color-bg-secondary);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  margin-bottom: var(--space-4);
+}
+
+.markdown-itinerary__content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Markdown Blockquotes */
+.markdown-itinerary__content blockquote {
+  border-left: 3px solid var(--color-primary);
+  padding-left: var(--space-4);
+  margin-left: 0;
+  margin-bottom: var(--space-4);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* Markdown Tables (via remark-gfm) */
+.markdown-itinerary__content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-4);
+}
+
+.markdown-itinerary__content table th,
+.markdown-itinerary__content table td {
+  border: 1px solid var(--color-border);
+  padding: var(--space-3);
+  text-align: left;
+}
+
+.markdown-itinerary__content table th {
+  background-color: var(--color-bg-secondary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Light/Dark mode is now handled automatically by design tokens in :root */
+
+/* Responsive Design - Tablet */
+@media (max-width: 768px) {
+  .itinerary-display {
+    padding: var(--space-6);
+  }
+
+  .itinerary-display__metadata {
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+
+  .itinerary-display__metadata-item {
+    flex: 1 1 150px;
+  }
+
+  .day-display__header {
+    font-size: var(--font-size-2xl);
+  }
+
+  .time-period-display__header {
+    font-size: var(--font-size-lg);
+  }
+
+  .activity-display__attraction-name {
+    font-size: var(--font-size-lg);
+  }
+
+  /* Markdown responsive styles */
+  .markdown-itinerary__content {
+    padding: var(--space-4);
+  }
+
+  .markdown-itinerary__content h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .markdown-itinerary__content h2 {
+    font-size: var(--font-size-xl);
+  }
+
+  .markdown-itinerary__content h3 {
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* Responsive Design - Mobile */
+@media (max-width: 480px) {
+  .itinerary-display {
+    padding: var(--space-4);
+  }
+
+  .itinerary-display__metadata {
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .itinerary-display__metadata-item {
+    flex: 1 1 auto;
+  }
+
+  .itinerary-display__days {
+    gap: var(--space-6);
+  }
+
+  .day-display {
+    padding: var(--space-4);
+  }
+
+  .day-display__header {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-4);
+  }
+
+  .time-period-display {
+    padding: var(--space-3);
+  }
+
+  .time-period-display__header {
+    font-size: var(--font-size-lg);
+  }
+
+  .activity-display {
+    padding: var(--space-4);
+  }
+
+  .activity-display__attraction-name {
+    font-size: var(--font-size-lg);
+  }
+
+  .activity-display__activities-list {
+    margin-left: var(--space-5);
+  }
+
+  /* Ensure touch targets are adequate on mobile */
+  .activity-display__activity-item {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Markdown mobile responsive styles */
+  .markdown-itinerary__content {
+    padding: var(--space-4);
+  }
+
+  .markdown-itinerary__content h1 {
+    font-size: var(--font-size-xl);
+    margin-top: var(--space-6);
+  }
+
+  .markdown-itinerary__content h2 {
+    font-size: var(--font-size-lg);
+    margin-top: var(--space-5);
+  }
+
+  .markdown-itinerary__content h3 {
+    font-size: var(--font-size-base);
+    margin-top: var(--space-4);
+  }
+
+  .markdown-itinerary__content ul,
+  .markdown-itinerary__content ol {
+    margin-left: var(--space-5);
+  }
+
+  .markdown-itinerary__content pre {
+    padding: var(--space-3);
+    font-size: 0.85em;
+  }
+}

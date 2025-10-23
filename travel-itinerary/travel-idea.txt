@@ -1,0 +1,260 @@
+---
+transcript of video: https://www.youtube.com/watch?v=44eFf-tRiSg
+---
+
+0:00
+Hey everyone, this is Christina from
+0:02
+OpenAI. Welcome to Agent Builder 101.
+0:05
+Agent Builder is a new visual tool for
+0:08
+building AI workflows. You connect nodes
+0:10
+and create agents without writing any
+0:12
+code. So you can start from templates or
+0:15
+build your own from scratch. And it also
+0:17
+comes with built-in eval so you can test
+0:19
+and understand how your agents perform.
+0:22
+When you're ready, you can export the
+0:23
+workflow as code or drop it straight
+0:26
+into your product. Basically, it's your
+0:28
+all-in-one space to design, test, and
+0:31
+launch AI agents visually and fast. So,
+0:35
+today we're going to show you how to
+0:36
+build your first agentic workflow, a
+0:38
+helpful travel agent that will help you
+0:40
+either build an itinerary or look up
+0:42
+flight information. So, we're starting
+0:44
+here in the OpenAI platform.
+0:47
+Every workflow starts with a start node
+0:49
+where you can set input variables or
+0:51
+state variables. And today for the
+0:53
+travel agent, the defaults are great.
+0:57
+Next, I'll connect a classifier agent.
+0:58
+I'm going to be building a specialized
+1:01
+itinerary agent in addition to a
+1:03
+specialized flight agent. And so, I want
+1:05
+to first determine which agent I should
+1:06
+route to. So, I'll call this classifier.
+1:10
+So, you are a helpful travel assistant
+1:13
+for classifying whether a message is
+1:17
+about an itinerary or a flight.
+1:23
+And here I'll specify the output format
+1:26
+as JSON. And I'll add a property called
+1:29
+classification
+1:31
+which will have two options either
+1:33
+flight info or itinerary.
+1:38
+Great.
+1:39
+Next, I'll add in an if else node um to
+1:42
+branch based off of the classification.
+1:45
+So if
+1:47
+put pars.classification classification
+1:52
+is flight info then we want to branch to
+1:55
+the flight agent and otherwise we want
+1:58
+to branch into the um the itinerary
+2:01
+agent. So from the flight agent we'll
+2:03
+create a new node and we'll call this
+2:07
+flight agent.
+2:09
+You are a travel assistant.
+2:12
+always recommend a specific flight to go
+2:17
+to.
+2:19
+Use airport codes.
+2:23
+And here I'll also give it access to web
+2:25
+search so I can have the most up-to-date
+2:27
+information about flights.
+2:32
+Great. For the itinerary agent, I'll
+2:36
+build um an itinerary agent with a new
+2:39
+agent node.
+2:42
+You are a travel assistant.
+2:45
+So build a concise
+2:49
+itinerary.
+2:51
+Great. I think that's everything we need
+2:52
+to get started with our travel agent. So
+2:55
+here in run preview, I'll ask it what
+2:57
+should I do in a day in Tokyo.
+3:01
+And I can see the message going through
+3:03
+the workflow that we just created. going
+3:04
+through the classifier agent, deciding
+3:06
+which category it should go to, seeing
+3:09
+that I asked about an itinerary, and
+3:11
+then passing it on to the itinerary
+3:13
+agent, whereas come up with a concise
+3:15
+one-day itinerary for Tokyo. Looks like
+3:17
+a great day. Now, for the flight agent,
+3:20
+I actually want a richer experience for
+3:22
+showing flight information instead of
+3:24
+just plain text. And so, I can do that
+3:26
+by going and building a widget in our
+3:27
+widget studio. Here I've actually
+3:29
+already designed um a widget for showing
+3:32
+flight information to go from one
+3:34
+location to the next with um all the
+3:36
+details about the flight. So I can just
+3:38
+click download um to download this
+3:40
+entire template and then bring that
+3:42
+directly to the agent um that we just
+3:45
+created here. I'll add it in as the
+3:48
+widgets output format. I'll upload this
+3:51
+flight widget that we just pulled.
+3:54
+Preview it. Everything looks great. And
+3:56
+I actually want this to be a bit more
+3:58
+customized. Um, and so I will tell it to
+4:02
+choose a background color
+4:06
+creatively
+4:07
+based on the destination.
+4:12
+And I'll also ask it to include time
+4:16
+zones A.M. or PM.
+4:21
+Great. Let's test it out.
+4:26
+SFO to Tokyo on October 7th.
+4:30
+So here again, we see it moving through
+4:31
+the classifier agent um determining
+4:34
+whether I'm asking about um a flight or
+4:37
+an itinerary, deciding that I'm asking
+4:39
+about a flight agent um or deciding that
+4:41
+I'm asking about a flight, searching the
+4:43
+web, finding a flight for me, and then
+4:45
+showing it to me in this rich
+4:46
+interactive way. In this case, it's
+4:49
+decided that yellow is the color of
+4:51
+Tokyo. Um, and so showed that as the
+4:53
+background color.
+4:56
+Great. So I've now built an agent that
+4:58
+I'm happy with and I can publish it
+5:00
+directly. Let's call it travel agent
+5:02
+here.
+5:03
+And I now have a fully deployed agent
+5:05
+that is ready to go. Um, I can either
+5:08
+use the agents SDK. And here you can see
+5:10
+that this is quite a bit of code um for
+5:12
+me to manage myself
+5:15
+or I can simply take this workflow ID
+5:17
+and put it in my product directly using
+5:19
+jacket. So that's all. Hope that was
+5:21
+helpful and please leave any feedback in
+5:23
+the comments and don't forget to
+5:25
+subscribe to OpenAI devs for more
+5:27
+product updates. Thank you.
