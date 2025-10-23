@@ -1,0 +1,7 @@
+team_description: Enable autonomous, high-quality feature development by providing
+  structured, issue-specific guidance that allows AI agents to implement, test, and
+  document code changes with minimal human oversight while maintaining architectural
+  integrity and production readiness. The team operates on a trust-but-verify principle
+  where AI agents work independently within tightly scoped boundaries, with systematic
+  quality gates ensuring production readiness at strategic checkpoints.
+team_name: production-ready-development

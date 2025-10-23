@@ -1,0 +1,1 @@
+import "artifact-parser://get-pr-review-consolidation"
